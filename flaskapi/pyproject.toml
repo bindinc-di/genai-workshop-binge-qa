@@ -1,8 +1,11 @@
 [tool.poetry]
-name = "flaskapi"
+name = "bingesearchapi"
 version = "0.1.0"
 description = ""
-authors = ["Dennis Vink <dennisvink@binx.io>"]
+authors = [
+    "Dennis Vink <dennisvink@binx.io>",
+    "Igor Kuznetsov <igor.kuznetsov@bindinc.nl>"
+]
 readme = "README.md"
 
 [tool.poetry.dependencies]
@@ -16,6 +19,7 @@ ipykernel = "^6.25.2"
 tqdm = "^4.66.1"
 flask = "^2.3.3"
 gunicorn = "^21.2.0"
+python-dotenv = "^1.0.0"
 
 [build-system]
 requires = ["poetry-core"]

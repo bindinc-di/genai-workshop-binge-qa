@@ -1,10 +1,16 @@
 from langchain.llms import VertexAI
 import requests
 import json
+import os
+from dotenv import find_dotenv, load_dotenv
 
 import numpy as np
 import subprocess
 import time
+
+_ = load_dotenv(find_dotenv())
+
+SEARCH_BASE_URL=os.getenv("SEARCH_BASE_URL")
 
 def translate_to_english(txt):
     # random delay not to upset the server
@@ -63,7 +69,7 @@ Remember: Always provide the answer as a JSON object. Never reply as non-formatt
 
 
 def llm_api_(question):
-    url = 'https://gcp-bindincapi-h2ppf7r6xa-ue.a.run.app/similarity'
+    url = f'{SEARCH_BASE_URL}/similarity'
     data = {
         "query": question
     }

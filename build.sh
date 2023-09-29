@@ -1,4 +1,7 @@
-docker buildx build . --platform linux/amd64 -t gcp-bindincapi
-docker tag gcp-bindincapi gcr.io/playground-dennisvink/gcp-bindincapi
-docker push gcr.io/playground-dennisvink/gcp-bindincapi
-gcloud run deploy gcp-bindincapi --image gcr.io/playground-dennisvink/gcp-bindincapi --platform managed --region us-east1 --allow-unauthenticated --timeout=900
+PROJECT_ID=speeltuin-327308
+REGION=europe-west1
+APP_NAME=binge-qa-api
+docker buildx build . --platform linux/amd64 --tag $APP_NAME
+docker tag $APP_NAME gcr.io/$PROJECT_ID/$APP_NAME
+docker push gcr.io/$PROJECT_ID/$APP_NAME
+gcloud run deploy $APP_NAME --image gcr.io/$PROJECT_ID/$APP_NAME --platform managed --region $REGION --allow-unauthenticated --timeout=900
