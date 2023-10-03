@@ -11,6 +11,7 @@ import time
 _ = load_dotenv(find_dotenv())
 
 SEARCH_BASE_URL=os.getenv("SEARCH_BASE_URL")
+SEARCH_API_KEY = os.getenv("SEARCH_API_KEY")
 
 def translate_to_english(txt):
     # random delay not to upset the server
@@ -68,27 +69,30 @@ Remember: Always provide the answer as a JSON object. Never reply as non-formatt
     return prompt
 
 
-def llm_api_(question):
+def llm_api(question):
     url = f'{SEARCH_BASE_URL}/similarity'
     data = {
         "query": question
     }
-    response = requests.post(url, json=data)
+    headers = {
+        "Authorization": f"Bearer {SEARCH_API_KEY}"
+    }
+    response = requests.post(url, json=data, headers=headers)
     return response.json()
 
 
-# temp function
-def llm_api(question):
-    from langchain.vectorstores.faiss import FAISS
-    from langchain.embeddings.vertexai import VertexAIEmbeddings
+# # temp function
+# def llm_api(question):
+#     from langchain.vectorstores.faiss import FAISS
+#     from langchain.embeddings.vertexai import VertexAIEmbeddings
 
-    embeddings = VertexAIEmbeddings(model_name="textembedding-gecko-multilingual@latest",chunk_size=1)
+#     embeddings = VertexAIEmbeddings(model_name="textembedding-gecko-multilingual@latest",chunk_size=1)
 
-    store = FAISS.load_local("../data/index",embeddings,"index")
+#     store = FAISS.load_local("../data/index",embeddings,"index")
 
-    result = store.similarity_search(question)
+#     result = store.similarity_search(question)
 
-    return [{"chunk":r.page_content, "metadata":r.metadata} for r in result]
+#     return [{"chunk":r.page_content, "metadata":r.metadata} for r in result]
     
     
 
