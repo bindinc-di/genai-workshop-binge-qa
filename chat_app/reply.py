@@ -107,3 +107,6 @@ def reply(history):
         response["response"] = "Sorry, I was not provided with this information yet."
     return response["response"], chunks
 
+def warmup_api_service():
+    resp = requests.get(SEARCH_BASE_URL)
+    print(resp.text)
