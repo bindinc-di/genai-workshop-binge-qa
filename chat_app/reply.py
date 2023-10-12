@@ -110,3 +110,5 @@ def reply(history):
 def warmup_api_service():
     resp = requests.get(SEARCH_BASE_URL)
     print(resp.text)
+
+warmup_api_service()
