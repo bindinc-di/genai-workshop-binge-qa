@@ -3,3 +3,7 @@ attic
 .env
 *.pyc
 .vscode/
+.DS_Store
+cert/
+.gitignore
+data
