@@ -1,0 +1,17 @@
+###
+POST http://127.0.0.1:5000/similarity
+Content-Type: application/json
+Authorization: Bearer {{$dotenv SEARCH_API_KEY}}
+
+{
+    "query": "What are main chracters of Enchantimals?"
+}
+
+###
+POST https://binge-qa-api-iobao7k2yq-ew.a.run.app/similarity
+Content-Type: application/json
+Authorization: Bearer {{$dotenv SEARCH_API_KEY}}
+
+{
+    "query": "What are main chracters of Enchantimals?"
+}

@@ -1,7 +1,9 @@
-from langchain.llms import VertexAI
+# from langchain.llms import VertexAI
+from langchain_google_vertexai import VertexAI
 import requests
 import json
 import os
+import logging
 from dotenv import find_dotenv, load_dotenv
 
 import numpy as np
@@ -9,6 +11,8 @@ import subprocess
 import time
 
 _ = load_dotenv(find_dotenv())
+
+logging.basicConfig(level=logging.INFO)
 
 SEARCH_BASE_URL = os.getenv("SEARCH_BASE_URL")
 SEARCH_API_KEY = os.getenv("SEARCH_API_KEY")
@@ -20,14 +24,14 @@ def translate_to_english(txt):
 
     txt = txt.replace("'", "''").replace("\n", "")
     command = f"curl --header 'Accept: text/json' --user-agent 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.8; rv:21.0) Gecko/20100101 Firefox/21.0' --data-urlencode 'client=gtx' --data-urlencode 'sl=auto' --data-urlencode 'tl=en' --data-urlencode 'dt=at' --data-urlencode 'q={txt}' -sL http://translate.googleapis.com/translate_a/single | jq -r '.[5][][2][0][0]'"
-#     print(command)
+#     logging.info(command)
     out = subprocess.run(command, shell=True, stdout=subprocess.PIPE)
 
     return out.stdout.decode("utf-8")  # .replace("\n","")
 
 
 llm = VertexAI(
-    model_name='text-bison',
+    model_name='gemini-1.5-flash',
     max_output_tokens=1024,
     temperature=0.0,
     top_p=0.2,
@@ -68,11 +72,11 @@ Now write a JSON object with the following fields:
 - "relevant_substrings": list[list[str,str]], // list of tuples, where each tuple must contain the direct quotes of relevant substrings from SNIPPETS, and the respective IDENTIFIER related to it.
 Remember: Always provide the answer as a JSON object. Never reply as non-formatted text.
 """
-    print("PROMPT IS", prompt)
+    logging.debug("PROMPT IS %s" % prompt)
     return prompt
 
 
-def llm_api(question):
+def search_documents(question):
     url = f'{SEARCH_BASE_URL}/similarity'
     data = {
         "query": question
@@ -85,11 +89,18 @@ def llm_api(question):
 
 
 def reply(history):
-    chunks = llm_api(history[-1]["text"])
-    response = llm(build_prompt(history, chunks))
-    response = "".join([row for row in response.split("\n") if "`" not in row])
-    response = json.loads(response)
-    print("RESPONSE IS", response)
+    chunks = search_documents(history[-1]["text"])
+    raw_response = llm.invoke(build_prompt(history, chunks))
+    logging.debug("RAW LLM RESPONDE IS\n%s" % raw_response)
+    response = "".join([row for row in raw_response.split("\n") if "`" not in row])
+
+    try:
+        response = json.loads(response)
+    except json.decoder.JSONDecodeError as e:
+        logging.error(str(e))
+        logging.error("Raw LLM response:\n %s" % raw_response)
+        return ["Error: got a malformatted answer from LLM"], []
+
 
     if not response["in_snippets"] and not response["in_chat"]:
         response["response"] = "Sorry, I was not provided with this information yet."

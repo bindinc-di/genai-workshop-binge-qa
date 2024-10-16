@@ -29,10 +29,12 @@ load_dotenv(find_dotenv())
 LOAD_IN_CHUNKS = True
 CHUNK_SIZE = 100
 
+VERTEX_EMBEDDING_MODEL_NAME = "text-multilingual-embedding-002"
+
 # %%
 # import os
 # os.getcwd()
-# file_path = "../../flaskapi/data/raw/binge_apporved_animation.json"
+# file_path = "../../api_app/data/raw/binge_apporved_animation.json"
 
 # if set english description texts will be first translated to English
 
@@ -299,7 +301,7 @@ def get_embeddings(type):
         embeddings = VertexAIEmbeddings(
             #     model_name="textembedding-gecko@001" # stable,
             #     model_name="textembedding-geckolatest",
-            model_name="textembedding-gecko-multilingual@001",
+            model_name=VERTEX_EMBEDDING_MODEL_NAME,
             chunk_size=1
         )
     elif type == "openai":
@@ -328,7 +330,7 @@ else:
 
 # %%
 print("Saving vector store to file system", faiss_index_save_path)
-# faiss_index_save_path = "../../flaskapi/data/index"
+# faiss_index_save_path = "../../api_app/data/index"
 faiss.save_local(faiss_index_save_path, "index")
 
 # %%
