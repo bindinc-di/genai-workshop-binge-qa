@@ -26,3 +26,6 @@ docker push gcr.io/$PROJECT_ID/$APP_NAME
 gcloud config set project $PROJECT_ID
 # gcloud run deploy $APP_NAME --image gcr.io/$PROJECT_ID/$APP_NAME --platform managed --region $REGION --allow-unauthenticated --timeout=900
 gcloud run deploy $APP_NAME --image gcr.io/$PROJECT_ID/$APP_NAME --platform managed --project $PROJECT_ID --region $REGION --timeout=900
+
+# test deployed app:
+# curl --header "Content-Type: application/json" --data '{"query": "Horror Series op Netflix"}' https://binge-qa-api-312076928311.europe-west1.run.app/similarity
