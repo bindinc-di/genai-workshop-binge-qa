@@ -29,18 +29,19 @@ def translate_to_english(txt):
 
     return out.stdout.decode("utf-8")  # .replace("\n","")
 
+def get_llm(max_output_tokens, temperature, top_p, top_k):
 
-llm = VertexAI(
-    model_name='gemini-1.5-flash',
-    max_output_tokens=1024,
-    temperature=0.0,
-    top_p=0.2,
-    top_k=20,
-    verbose=True
-)
+    return VertexAI(
+        model_name='gemini-1.5-flash',
+        max_output_tokens=max_output_tokens,
+        temperature=temperature,
+        top_p=top_p,
+        top_k=top_k,
+        verbose=True
+    )
 
 
-def build_prompt(chat_history, chunks):
+def build_prompt(system_prompt, task_prompt, formatting_instruction, chat_history, chunks):
     hist = "\n".join(
         [f"{m['name'].upper()}: {m['text']}" for m in chat_history])
 
@@ -51,26 +52,17 @@ def build_prompt(chat_history, chunks):
     # chunks = translate_to_english(chunks)
 
     prompt = f"""
-You are a specialist ASSISTANT in Movie titles and TV shows. Your task is to help USER find information from the SNIPPETS section and the CHAT conversation.
+{system_prompt}
+------------
+{task_prompt}
 ------------
 SNIPPETS
 {chunks}
 ------------
-Your answer must be based solely on the SNIPPETS above and the CHAT history below.
-Every part of the answer must be supported by the SNIPPETS only.
-Your answer must be clear and detailed, bringing specific information from the SNIPPETS.
-If you don't know the answer, just say that you don't know.
-Don't make up an answer. If the answer is not within the SNIPPETS, say you don't know.
-------------
 CHAT:
 {hist}
 ------------
-Now write a JSON object with the following fields:
-- "response":str, // the response for the chat with user
-- "in_snippets":bool, //true if the answer is provided in the SNIPPETS. Otherwise, it must be always false.
-- "in_chat":bool, // true if the answer is provided in the CHAT messages. Otherwise, it must always be false.
-- "relevant_substrings": list[list[str,str]], // list of tuples, where each tuple must contain the direct quotes of relevant substrings from SNIPPETS, and the respective IDENTIFIER related to it.
-Remember: Always provide the answer as a JSON object. Never reply as non-formatted text.
+{formatting_instruction}
 """
     logging.debug("PROMPT IS %s" % prompt)
     return prompt
@@ -88,9 +80,10 @@ def search_documents(question):
     return response.json()
 
 
-def reply(history):
+def reply(history, system_prompt, task_prompt, formatting_instruction, generation_params):
     chunks = search_documents(history[-1]["text"])
-    raw_response = llm.invoke(build_prompt(history, chunks))
+    llm = get_llm(**generation_params)
+    raw_response = llm.invoke(build_prompt(system_prompt, task_prompt, formatting_instruction, history, chunks))
     logging.debug("RAW LLM RESPONDE IS\n%s" % raw_response)
     response = "".join([row for row in raw_response.split("\n") if "`" not in row])
 
