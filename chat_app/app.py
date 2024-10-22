@@ -1,5 +1,7 @@
 import streamlit as st
-from prompts import (
+
+# from prompts_en import (
+from prompts_nl import (
     default_system_prompt,
     default_task_prompt,
     default_formatting_instruction,
@@ -11,6 +13,10 @@ from configuration import (
     TOP_K,
 )
 from reply import reply
+
+# Set Debug mode On/Off here
+DEBUG=True
+
 
 _CONVERSATION_HISTORY = "history"
 
@@ -65,10 +71,6 @@ if message := st.chat_input("Type your message here..."):
     )
     append_msg(text, "assistant", chunks)
 
-button_clear = st.sidebar.button("Clear Conversation History")
-if button_clear:
-    st.session_state[_CONVERSATION_HISTORY].clear()
-    st.cache_data.clear()
 
 button_pop = st.sidebar.button("Pop last message")
 if button_pop:
@@ -94,19 +96,23 @@ if button_save_current_params:
         "temperature": temperature,
         "top_p": top_p,
         "top_k": top_k,
-        "message": message,
-        "history": history,
     }
-    with open(os.path.join(os.getcwd(), "data", "current_params_{dt}.json"), "w") as f:
-        f.write(json.dumps(doc))
-    st.sidebar.success("Parameters saved")
 
+    if DEBUG: # save also the conversation history
+        doc["message"] = message
+        doc["history"] = history
         
+    with open(os.path.join(os.getcwd(), "data", f"current_params_{dt}.json"), "w") as f:
+        f.write(json.dumps(doc))
+        st.sidebar.success("Parameters saved")
 
 
-
+button_clear = st.sidebar.button("Clear Conversation History")
+if button_clear:
+    st.session_state[_CONVERSATION_HISTORY].clear()
+    st.cache_data.clear()        
 
 
 for msg in history:
     with st.chat_message(msg["name"], avatar=avatar[msg["name"]]):
-        st.write(msg["text"])
+        st.markdown(msg["text"])
