@@ -34,7 +34,7 @@ def embed_text(texts, dimensionality=None) -> list[list[float]]:
     # [[0.006135190837085247, -0.01462465338408947, 0.004978656303137541, ...], [0.1234434666, ...]],
     return [embedding.values for embedding in embeddings]
 
-def main(input_filepath, output_filepath=None):
+def process_file(input_filepath, output_filepath=None):
 
     assert os.path.exists(input_filepath), f"File does not exist {input_filepath}"
 
@@ -59,14 +59,16 @@ def main(input_filepath, output_filepath=None):
 
 
 
-if __name__ == "__main__":
-
+def main():
 
     parser = ArgumentParser()
     parser.add_argument("input_filepath")
     # parser.add_argument("output_filepath")
 
     args = parser.parse_args()
-    main(args.input_filepath)
+    process_file(args.input_filepath)
 
     # embed_text()
+
+if __name__ == "__main__":
+    main()
