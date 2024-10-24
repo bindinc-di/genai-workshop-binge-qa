@@ -31,11 +31,11 @@ VERTEX_EMBEDDING_MODEL_NAME = "text-multilingual-embedding-002"
 
 CUSTOM_DOCUMENTS_DIRECTORY = "data/custom_documents"
 
-
+# Hyperparameters for generation
 MAX_OUTPUT_TOKENS = 1024
-TEMPERATURE = 0.0
+TEMPERATURE = 0.3
 TOP_P = 0.2
-TOP_K = 20
+TOP_K = 20 # Gemini moel only
 
 
 ### Open AI GPT-4
@@ -117,12 +117,19 @@ llm = get_llm_vertexai_gemini_1_5(temperature=TEMPERATURE, max_tokens=MAX_OUTPUT
 ## Vectorstore
 embeddings = VertexAIEmbeddings(model_name=VERTEX_EMBEDDING_MODEL_NAME)
 
+# Main collection where embedded Binge.app articles extended with IMDB Plot/Synopsys are stored
 vectorstore = Chroma(
     persist_directory=CHROMA_PERSISTENT_DIRECTORY,
     embedding_function=embeddings,
     collection_name="popcorn",
 )
 
+# Auxiliary documents loaded from other files ar stored in this collection
+vectorstore_other = Chroma(
+    persist_directory=CHROMA_PERSISTENT_DIRECTORY,
+    embedding_function=embeddings,
+    collection_name="other",
+)
 
 # Custom documents
 
@@ -210,6 +217,14 @@ def rag_generate(
     # find similar documents and add to the user question
     retriever = vectorstore.as_retriever(search_type="similarity", search_kwargs={"k": 5})
     formatted_docs = format_docs(retriever.invoke(message))
+
+    # Optionally also search in other documents
+    retriever_other = vectorstore_other.as_retriever(search_type="similarity", search_kwargs={"k": 5})
+    formatted_docs += "\n\n" + format_docs(retriever_other.invoke(message))
+
+    # custom documents from CUSTOM_DOCUMENTS_DIRECTORY are always added to the context
+    formatted_docs += "\n\n" + format_docs(custom_documents)
+
     rag_prompt = rag_prompt_template.format(context=formatted_docs, question=message)
 
     # logging.debug(rag_prompt)
@@ -221,15 +236,13 @@ def rag_generate(
 def main():
 
     demo = gr.ChatInterface(
-        # generate,
-        rag_generate,
+        generate,
+        # rag_generate,
         # theme=gr.themes.Glass(), 
         theme=gr.themes.Soft(),        
         # type='messages',
         additional_inputs=[
             gr.Textbox(default_system_prompt, label="System Prompt"),
-            # gr.Slider(0.0, 1.0, value=0, step=0.1, label="Temperature"),
-            # gr.Slider(256, 4096, value=1024, step=10, label="Max.Tokens"),
         ],
         examples=[
             ["Can you tell me which horror movies should I watch?"],

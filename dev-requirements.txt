@@ -1,0 +1,12 @@
+langchain
+langchain-chroma
+langchain-community
+langchain-core
+langchain-google-vertexai
+langchain-openai
+chromadb
+gradio
+google-cloud-aiplatform
+openai
+
+
