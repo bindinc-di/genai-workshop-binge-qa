@@ -33,6 +33,10 @@ def reload_collection(input_filepath, chromadb_path, collection_name):
             doc = json.loads(r)
             # print(doc)
             # print(doc)
+            if 'embedding' or 'page_content' not in doc:
+                print(f"No embedding or page_content in line {ix}: {r}")
+                continue
+
             collection.add(embeddings=[doc['embedding']], 
                            documents=[doc['page_content']],
                            metadatas=[remove_empty(doc.get('metadata', {}))],
@@ -60,23 +64,24 @@ def test_search(chromadb_path, collection_name):
 
 
 def load_file_to_chromadb_collection(input_filepath, chromadb_path, collection_name):
-    if os.path.isdir(input_filepath):
-        doc_filepath = os.path.join(input_filepath, "docs.ndjson")
-        for filename in os.listdir(input_filepath):
-            if filename.endswith(".txt"):
-                filepath = os.path.join(input_filepath, filename)
-                with open(filepath, mode="r", encoding="utf-8") as in_f, \
-                     open(doc_filepath, mode="r", encoding="utf-8") as out_f:
-                    doc = {
-                        "page_content": in_f.read(),
-                        "id": filename,
-                        "metadata": {}
-                    }
-                    out_f.write(json.dumps(doc) + "\n")
-        reload_collection(doc_filepath, chromadb_path, collection_name=collection_name)
+    # if os.path.isdir(input_filepath):
+    #     doc_filepath = os.path.join(input_filepath, "docs.ndjson")
+    #     for filename in os.listdir(input_filepath):
+    #         if filename.endswith(".txt"):
+    #             filepath = os.path.join(input_filepath, filename)
+    #             with open(filepath, mode="r", encoding="utf-8") as in_f, \
+    #                  open(doc_filepath, mode="r", encoding="utf-8") as out_f:
+    #                 doc = {
+    #                     "page_content": in_f.read(),
+    #                     "id": filename,
+    #                     "metadata": {}
+    #                 }
+    #                 out_f.write(json.dumps(doc) + "\n")
+    #     reload_collection(doc_filepath, chromadb_path, collection_name=collection_name)
 
 
-    elif os.path.isfile(input_filepath) and input_filepath.endswith(".ndjson"):
+    # el
+    if os.path.isfile(input_filepath) and input_filepath.endswith(".ndjson"):
         reload_collection(input_filepath, chromadb_path, collection_name=collection_name)
         test_search(chromadb_path, collection_name=collection_name)
     else:
