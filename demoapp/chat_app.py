@@ -1,3 +1,6 @@
+"""
+Gradio app for chatting with the LLM directly or using semantic search
+"""
 import gradio as gr
 import os
 import logging
@@ -126,7 +129,9 @@ vectorstore = Chroma(
 import json
 def read_custom_documents() -> list[str]:
     custom_documents = []
-
+    if not os.path.isdir(CUSTOM_DOCUMENTS_DIRECTORY):
+        logging.info(f"Directory {CUSTOM_DOCUMENTS_DIRECTORY} does not exist")
+        return
     for filename in os.listdir(CUSTOM_DOCUMENTS_DIRECTORY):
         if filename.endswith(".txt"):
             with open(os.path.join(CUSTOM_DOCUMENTS_DIRECTORY, filename), "r") as f:
@@ -218,6 +223,8 @@ def main():
     demo = gr.ChatInterface(
         # generate,
         rag_generate,
+        # theme=gr.themes.Glass(), 
+        theme=gr.themes.Soft(),        
         # type='messages',
         additional_inputs=[
             gr.Textbox(default_system_prompt, label="System Prompt"),

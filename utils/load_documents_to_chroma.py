@@ -16,11 +16,13 @@ def create_collection(chromadb_path, collection_name):
     for collection in chroma_client.list_collections():
         if collection.name == collection_name:
             chroma_client.delete_collection(name=collection_name)
+            print(f"Deleted collection {collection_name}")
             # collection = chroma_client.get_collection(name=collection_name)
             # collection.delete()
             # break
 
     collection = chroma_client.create_collection(name=collection_name)
+    print(f"Created collection {collection_name}")
     return collection
 
 
