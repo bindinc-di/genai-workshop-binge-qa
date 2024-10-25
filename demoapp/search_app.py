@@ -41,7 +41,7 @@ def embed_text(texts, dimensionality=None) -> list[list[float]]:
     # texts = ["banana muffins? ", "banana bread? banana muffins?"]
     # The dimensionality of the output embeddings.
     # The task type for embedding. Check the available tasks in the model's documentation.
-    task = "RETRIEVAL_DOCUMENT"
+    task = "RETRIEVAL_QUERY"
 
     model = TextEmbeddingModel.from_pretrained(VERTEX_EMBEDDING_MODEL_NAME)
     inputs = [TextEmbeddingInput(text, task) for text in texts]
@@ -53,11 +53,13 @@ def embed_text(texts, dimensionality=None) -> list[list[float]]:
     # [[0.006135190837085247, -0.01462465338408947, 0.004978656303137541, ...], [0.1234434666, ...]],
     return [embedding.values for embedding in embeddings]
 
-
+    # <div markdown="1">
+    # {item['document']}
+    # </div>
 def item_as_html(item):
     return f"""<div>
-    <p><strong>{item['id']}</strong> distance: {item['distance']}</p>
-    <p>{item['document'][:500]}</p>
+    <p><span><strong>{item['id']} </strong></span><span>distance: {item['distance']}</span></p>
+    <span>{item['document']}</span>
     </div>"""
 
 def items_as_html(items):
