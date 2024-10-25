@@ -1,7 +1,7 @@
 import streamlit as st
 
-# from prompts_en import (
-from prompts_nl import (
+from prompts_en import (
+# from prompts_nl import (
     default_system_prompt,
     default_task_prompt,
     default_formatting_instruction,

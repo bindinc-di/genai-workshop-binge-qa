@@ -13,7 +13,7 @@ import time
 
 _ = load_dotenv(find_dotenv())
 
-logging.basicConfig(level=logging.INFO)
+logging.basicConfig(level=logging.DEBUG)
 
 SEARCH_BASE_URL = os.getenv("SEARCH_BASE_URL")
 SEARCH_API_KEY = os.getenv("SEARCH_API_KEY")
@@ -65,7 +65,6 @@ CHAT:
 ------------
 {formatting_instruction}
 """
-    logging.debug("PROMPT IS %s" % prompt)
     return prompt
 
 
@@ -84,8 +83,10 @@ def search_documents(question):
 def reply(history, system_prompt, task_prompt, formatting_instruction, generation_params) -> tuple[str, list[dict]]:
     chunks = search_documents(history[-1]["text"])
     llm = get_llm(**generation_params)
-    raw_response = llm.invoke(build_prompt(system_prompt, task_prompt, formatting_instruction, history, chunks))
-    logging.debug("RAW LLM RESPONSE IS\n%s" % raw_response)
+    prompt = build_prompt(system_prompt, task_prompt, formatting_instruction, history, chunks)
+    logging.debug("PROMPT IS:\n%s" % prompt)
+    raw_response = llm.invoke(prompt)
+    logging.debug("RAW LLM RESPONSE IS:\n%s" % raw_response)
     response = "".join([row for row in raw_response.split("\n") if "`" not in row])
 
     try:
