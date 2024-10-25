@@ -20,7 +20,7 @@ from langchain.schema import AIMessage, HumanMessage, SystemMessage
 from langchain_chroma import Chroma
 
 # from langchain_community.embeddings import VertexAIEmbeddings
-from langchain_google_vertexai import VertexAIEmbeddings
+from langchain_google_vertexai.embeddings import VertexAIEmbeddings
 
 import gradio as gr
 
@@ -121,7 +121,7 @@ llm = get_llm_vertexai_gemini_1_5(
 
 
 ## Vectorstore
-embeddings = VertexAIEmbeddings(model_name=VERTEX_EMBEDDING_MODEL_NAME)
+embeddings = VertexAIEmbeddings(model_name=VERTEX_EMBEDDING_MODEL_NAME)#, embeddings_task_type="RETRIEVAL_QUERY")
 
 # Main collection where embedded Binge.app articles extended with IMDB Plot/Synopsys are stored
 vectorstore = Chroma(
