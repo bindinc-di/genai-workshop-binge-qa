@@ -1,0 +1,8 @@
+[server]
+headless = true
+runOnSave = true
+
+[browser]
+gatherUsageStats = true
+
+[theme]
