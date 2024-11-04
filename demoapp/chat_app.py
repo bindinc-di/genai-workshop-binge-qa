@@ -199,9 +199,19 @@ def generate(
 ):
     history_langchain_format = []
     history_langchain_format.append(SystemMessage(content=system_prompt))
-    for human, ai in history:
-        history_langchain_format.append(HumanMessage(content=human))
-        history_langchain_format.append(AIMessage(content=ai))
+    # chat interface type = tuples
+    # for human, ai in history:
+    #     history_langchain_format.append(HumanMessage(content=human))
+    #     history_langchain_format.append(AIMessage(content=ai))
+    for prev_message in history:
+        content=prev_message["content"]
+        if prev_message["role"] == "user":
+            history_langchain_format.append(HumanMessage(content))
+        elif prev_message["role"] == "assistant":
+            history_langchain_format.append(AIMessage(content))
+        else:
+            raise ValueError(f"Unknown role {prev_message['role']}")
+
     history_langchain_format.append(HumanMessage(content=message))
 
     _logger.debug("LLM INPUT IS:\n%s", history_langchain_format)
@@ -253,6 +263,7 @@ def main():
     demo = gr.ChatInterface(
         # generate,
         rag_generate,
+        type="messages",
         theme=gr.themes.Origin(), # other themes available:
 # Citrus
 # Default
