@@ -100,3 +100,11 @@ def reply(history, system_prompt, task_prompt, formatting_instruction, generatio
     if not response["in_snippets"] and not response["in_chat"]:
         response["response"] = "Sorry, I was not provided with this information yet."
     return response["response"], chunks
+
+
+def warmup_api_service():
+    resp = requests.get(SEARCH_BASE_URL)
+    print(resp.text)
+
+warmup_api_service()
+
